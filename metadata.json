@@ -4,6 +4,6 @@
   "shell-version": [
   "3.6"
   ], 
-  "url": "https://github.com/bsaleil/todolist-gnome-shell-extension", 
-  "uuid": "todolist@bsaleil.org"
+  "url": "https://github.com/nask0/todolist-gnome-shell-extension", 
+  "uuid": "todolist@nask0"
 }

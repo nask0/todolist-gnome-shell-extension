@@ -1,9 +1,12 @@
-// This extension was developed by :
-// * Baptiste Saleil http://bsaleil.org/
-// * Community : https://github.com/bsaleil/todolist-gnome-shell-extension/network
-// With code from :https://github.com/vibou/vibou.gTile
-//
-// Licence: GPLv2+
+/**
+ * This extension was developed by :
+ *    Baptiste Saleil http://bsaleil.org/
+ *    Atanas Beloborodov https://github.com/nask0
+ *    Community : https://github.com/bsaleil/todolist-gnome-shell-extension/network
+ *    With code from :https://github.com/vibou/vibou.gTile
+ * 
+ * Licence: GPLv2+
+ */
 
 const Gtk = imports.gi.Gtk;
 const GObject = imports.gi.GObject;
@@ -18,22 +21,19 @@ let name_str = "";
 let value_str = "";
 let opentodolist_str = "";
 
-function append_hotkey(model, settings, name, pretty_name)
-{
+function append_hotkey(model, settings, name, pretty_name) {
 	let [key, mods] = Gtk.accelerator_parse(settings.get_strv(name)[0]);
 	let row = model.insert(10);
 	model.set(row, [0, 1, 2, 3], [name, pretty_name, mods, key ]);
 }
 
-function init()
-{
-}
+function init() {}
 
 // Build prefs UI 
-function buildPrefsWidget()
-{	
+function buildPrefsWidget() {	
 	// Read locale files
 	let locales = Extension.dir.get_path() + "/locale";
+    
 	Gettext.bindtextdomain('todolist', locales);
 	name_str = _('Name');
 	value_str = _('Value');
@@ -43,8 +43,7 @@ function buildPrefsWidget()
 
 	let model = new Gtk.ListStore();
 
-	model.set_column_types
-	([
+	model.set_column_types ([
 		GObject.TYPE_STRING,
 		GObject.TYPE_STRING,
 		GObject.TYPE_INT,
@@ -53,13 +52,11 @@ function buildPrefsWidget()
 
 	let settings = Utils.getSettings();
 
-	for(key in pretty_names)
-	{
+	for(key in pretty_names) {
 		append_hotkey(model, settings, key, pretty_names[key]);
 	}
 
-	let treeview = new Gtk.TreeView(
-	{
+	let treeview = new Gtk.TreeView({
 		'expand': true,
 		'model': model
 	});
@@ -69,8 +66,7 @@ function buildPrefsWidget()
 
 	cellrend = new Gtk.CellRendererText();
 
-	col = new Gtk.TreeViewColumn(
-	{
+	col = new Gtk.TreeViewColumn({
 		'title': name_str,
 		'expand': true
 	});
@@ -103,9 +99,7 @@ function buildPrefsWidget()
 		settings.set_strv(name, [value]);
 	});
 
-	col = new Gtk.TreeViewColumn({
-		'title': value_str
-	});
+	col = new Gtk.TreeViewColumn({ 'title': value_str });
 
 	col.pack_end(cellrend, false);
 	col.add_attribute(cellrend, 'accel-mods', 2);
@@ -113,10 +107,7 @@ function buildPrefsWidget()
 
 	treeview.append_column(col);
 
-	let win = new Gtk.ScrolledWindow(
-	{
-		'vexpand': true
-	});
+	let win = new Gtk.ScrolledWindow({ 'vexpand': true });
 	win.add(treeview);	
 	win.show_all();
 

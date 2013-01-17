@@ -1,9 +1,14 @@
-// This extension was developed by :
-// * Baptiste Saleil http://bsaleil.org/
-// * Community : https://github.com/bsaleil/todolist-gnome-shell-extension/network
-// With code from :https://github.com/vibou/vibou.gTile
-//
-// Licence: GPLv2+
+/**
+ * Simple extension to add todo tasks from top panel on gnome-shell.
+ * 
+ * This extension was developed by :
+ *    Baptiste Saleil http://bsaleil.org/
+ *    Atanas Beloborodov https://github.com/nask0
+ *    Community : https://github.com/bsaleil/todolist-gnome-shell-extension/network
+ *    With code from :https://github.com/vibou/vibou.gTile
+ * 
+ * Licence: GPLv2+
+ */
 
 const St = imports.gi.St;
 const Gtk = imports.gi.Gtk;
@@ -34,8 +39,7 @@ let todo;	// Todolist instance
 let filePath;	// Tasks file path
 
 // TasksManager function
-function TasksManager(metadata)
-{
+function TasksManager(metadata) {
 	// File in home directory
 	filePath = GLib.get_home_dir() + "/.list.tasks";
 
@@ -46,12 +50,10 @@ function TasksManager(metadata)
 }
 
 // Prototype
-TasksManager.prototype =
-{
+TasksManager.prototype = {
 	__proto__: PanelMenu.Button.prototype,
 	
-    	_init: function() 
-    	{
+    _init: function()  {
     		// Check if file exists and create it if not
 		if (!GLib.file_test(filePath, GLib.FileTest.EXISTS))
 			createBaseFile();	
@@ -65,8 +67,7 @@ TasksManager.prototype =
 		this.buttonText.get_parent().add_style_class_name("panelButtonWidth");
 			
 		// Add keybinding
-		global.display.add_keybinding
-		(
+		global.display.add_keybinding (
 			key_open,
 			mySettings,
 			Meta.KeyBindingFlags.NONE,
@@ -74,51 +75,52 @@ TasksManager.prototype =
 		);
 		
 		// Auto focus
-		this.menu.connect('open-state-changed', Lang.bind(this, function(menu, open)
-		{
-			if (open) { this.newTask.grab_key_focus(); }
-		}));
+		this.menu.connect('open-state-changed',
+                          Lang.bind(this, function(menu, open) {
+                            if (open) { this.newTask.grab_key_focus(); }
+                          })
+                        );
 			
 		this._refresh();
 	},
 	
-	_refresh: function()
-	{    		
+	_refresh: function() {
 		let varFile = filePath;
 		let tasksMenu = this.menu;
 		let buttonText = this.buttonText;
 
-    		// Destroy previous box    		
-    		if (this.mainBox != null)
-    			this.mainBox.destroy();
-    			
-    		// Create main box
-    		this.mainBox = new St.BoxLayout();
-    		this.mainBox.set_vertical(true);
-    		
-    		// Create todos box
-    		this.todosBox = new St.BoxLayout();
-    		this.todosBox.set_vertical(true);
+        // Destroy previous box    		
+        if (this.mainBox != null) {
+            this.mainBox.destroy();
+        }
+            
+        // Create main box
+        this.mainBox = new St.BoxLayout();
+        this.mainBox.set_vertical(true);
+        
+        // Create todos box
+        this.todosBox = new St.BoxLayout();
+        this.todosBox.set_vertical(true);
 
 		// Create todos scrollview
-		this.scrollView = new St.ScrollView({style_class: 'vfade',
-                                          hscrollbar_policy: Gtk.PolicyType.NEVER,
-                                          vscrollbar_policy: Gtk.PolicyType.AUTOMATIC});
+		this.scrollView = new St.ScrollView({
+                                    style_class: 'vfade',
+                                    hscrollbar_policy: Gtk.PolicyType.NEVER,
+                                    vscrollbar_policy: Gtk.PolicyType.AUTOMATIC
+                              });
+                              
 		this.scrollView.add_actor(this.todosBox);
 		this.mainBox.add_actor(this.scrollView);
 		
-    		// Sync
-		if (GLib.file_test(filePath, GLib.FileTest.EXISTS))
-		{
+        // Sync
+		if (GLib.file_test(filePath, GLib.FileTest.EXISTS)) {
 			let content = Shell.get_file_contents_utf8_sync(filePath);
 			let lines = content.toString().split('\n');
 			let tasks = 0;
 			
-			for (let i=0; i<lines.length; i++)
-			{
+			for (let i=0; i<lines.length; i++) {
 				// if not a comment && not empty
-				if (lines[i][0] != '#' && lines[i] != '' && lines[i] != '\n')
-				{
+				if (lines[i][0] != '#' && lines[i] != '' && lines[i] != '\n') {
 					let item = new PopupMenu.PopupMenuItem(_(lines[i]));
 					let textClicked = lines[i];
 					item.connect('activate', Lang.bind(this,function(){
@@ -131,11 +133,16 @@ TasksManager.prototype =
 					tasks += 1;
 				}
 			}
+            
 			buttonText.set_text("(" + tasks + ")");
-			if (tasks < 10) buttonText.get_parent().add_style_class_name("panelButtonWidth");
-			else buttonText.get_parent().remove_style_class_name("panelButtonWidth");
-		}
-		else { createBaseFile(); }
+			if (tasks < 10) {
+                buttonText.get_parent().add_style_class_name("panelButtonWidth");
+            } else {
+                buttonText.get_parent().remove_style_class_name("panelButtonWidth");
+            }
+		} else {
+            createBaseFile();
+        }
 		
 		// Separator
 		this.Separator = new PopupMenu.PopupSeparatorMenuItem();
@@ -144,8 +151,7 @@ TasksManager.prototype =
 		// Bottom section
 		let bottomSection = new PopupMenu.PopupMenuSection();
 		
-		this.newTask = new St.Entry(
-		{
+		this.newTask = new St.Entry({
 			name: "newTaskEntry",
 			hint_text: _("New task..."),
 			track_hover: true,
@@ -154,16 +160,15 @@ TasksManager.prototype =
 		
 		let entryNewTask = this.newTask.clutter_text;
 		entryNewTask.set_max_length(MAX_LENGTH);
-		entryNewTask.connect('key-press-event', function(o,e)
-		{
+        
+		entryNewTask.connect('key-press-event', function(o,e) {
 			let symbol = e.get_key_symbol();
-		    	if (symbol == KEY_RETURN || symbol == KEY_ENTER)
-		    	{
-				tasksMenu.close();
-				buttonText.set_text(_("(...)"));
-				addTask(o.get_text(),varFile);
-		    		entryNewTask.set_text('');
-			}
+            if (symbol == KEY_RETURN || symbol == KEY_ENTER) {
+                tasksMenu.close();
+                buttonText.set_text(_("(...)"));
+                addTask(o.get_text(),varFile);
+                entryNewTask.set_text('');
+            }
 		});
 		
 		bottomSection.actor.add_actor(this.newTask);
@@ -172,44 +177,37 @@ TasksManager.prototype =
 		tasksMenu.addActor(this.mainBox);
 	},
 	
-	_enable: function()
-	{			
+	_enable: function() {
 		// Refresh menu
 		let fileM = Gio.file_new_for_path(filePath);
 		this.monitor = fileM.monitor(Gio.FileMonitorFlags.NONE, null);
 		this.monitor.connect('changed', Lang.bind(this, this._refresh));
 	},
 
-	_disable: function()
-	{
+	_disable: function() {
 		global.display.remove_keybinding(key_open);
 		this.monitor.cancel();
 	}
 }
 
 // Create base file (base tasks list) TODO
-function createBaseFile()
-{
+function createBaseFile() {
 	GLib.file_set_contents(filePath,BASE_CONTENT+BASE_TASKS);
 }
 
 // Remove task "text" from file "file"
-function removeTask(text,file)
-{
+function removeTask(text,file) {
 	let newText = BASE_CONTENT;
-	if (GLib.file_test(file, GLib.FileTest.EXISTS))
-	{
+	if (GLib.file_test(file, GLib.FileTest.EXISTS)) {
 		let content = Shell.get_file_contents_utf8_sync(file);
 		let tasks = content.toString().split('\n');
+        
 		newText = newText.substring(0, newText.length-1); // to not add useless '\n'
 		
-		for (let i=0; i<tasks.length; i++)
-		{
+		for (let i=0; i<tasks.length; i++) {
 			// if not corresponding
-			if (tasks[i] != text)
-			{
-				if(tasks[i][0] != '#')
-				{
+			if (tasks[i] != text) {
+				if(tasks[i][0] != '#') {
 					newText += "\n";
 					newText += tasks[i];
 				}
@@ -220,44 +218,41 @@ function removeTask(text,file)
 		let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
 		Shell.write_string_to_stream (out, newText);
 		out.close(null);
-	}
-	else
-	{ global.logError("Todo list : Error with file : " + filePath); }
+	} else {
+        global.logError("Todo list : Error with file : " + filePath);
+    }
 }
 
 // Add task "text" to file "file"
-function addTask(text,file)
-{
+function addTask(text,file) {
 	let newText = BASE_CONTENT+BASE_TASKS;
-	if (GLib.file_test(file, GLib.FileTest.EXISTS))
-	{
+    
+	if (GLib.file_test(file, GLib.FileTest.EXISTS)) {
 		let content = Shell.get_file_contents_utf8_sync(file);
 		content = content + text + "\n";
 		
 		let f = Gio.file_new_for_path(file);
 		let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        
 		Shell.write_string_to_stream (out, content);
 		out.close(null);
-	}
-	else
-	{ global.logError("Todo list : Error with file : " + filePath); }
+	} else {
+        global.logError("Todo list : Error with file : " + filePath);
+    }
 }
 
 // Init function
-function init(metadata) 
-{		
+function init(metadata)  {		
 	meta = metadata;
 }
 
-function enable()
-{
+function enable() {
 	todo = new TasksManager(meta);
 	todo._enable();
 	Main.panel.addToStatusArea('todo', todo);
 }
 
-function disable()
-{
+function disable() {
 	todo._disable();
 	todo.destroy();
 	todo = null;

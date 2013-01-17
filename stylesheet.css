@@ -1,13 +1,7 @@
-.newTaskSection {
-	padding:0 12px;
-}
+.newTaskSection { padding:0 12px; }
+.panelButtonWidth { width:40px; }
 
-.panelButtonWidth {
-	width:40px;
-}
-
-/* Same style as #searchEntry on theme/gnome-shell.css */
-
+/* Almost same style as #searchEntry on theme/gnome-shell.css */
 #newTaskEntry {
 	padding: 4px 12px;
 	border-radius: 17px;
