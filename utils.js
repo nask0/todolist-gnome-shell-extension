@@ -4,6 +4,7 @@
 // With code from :https://github.com/vibou/vibou.gTile
 //
 // Licence: GPLv2+
+//
 
 const Gio = imports.gi.Gio;
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
